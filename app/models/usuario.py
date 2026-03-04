@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship  # ayuda para definir relaciones entre m
 from app.database import Base  # clase base declarativa (declarative_base) para los modelos
 
 
+
 class Usuario(Base):  # modelo ORM que representa la tabla `usuario` en la base de datos
     __tablename__ = "usuario"  # nombre de la tabla en la base de datos
 

@@ -3,8 +3,7 @@
 Permite usar `python main.py` en lugar de invocar uvicorn manualmente.
 """
 from typing import Generator
-from app.routes import perfil
-from app.routes import persona
+from app.routes import persona, usuario, perfil
 from fastapi import FastAPI
 from sqlalchemy import (
     create_engine,
@@ -19,7 +18,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Session
 app = FastAPI(title="Aula Segura API")
 app.include_router(perfil.router)
 app.include_router(persona.router)
-
+app.include_router(usuario.router)
 
 # Cadena de conexión (ajusta usuario/clave/host/DB si hace falta)
 DATABASE_URL = "mysql+pymysql://root:root123@localhost:3306/aula_segura"
