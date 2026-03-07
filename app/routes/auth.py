@@ -13,6 +13,7 @@ from app.models.persona import Persona
 
 router = APIRouter(prefix="/auth", tags=["Autenticacion"])
 
+
 def generar_password_temporal():
     caracteres = string.ascii_letters + string.digits
     return ''.join(random.choice(caracteres) for i in range(8))

@@ -14,7 +14,7 @@ app.include_router(perfil.router)
 app.include_router(persona.router)
 app.include_router(usuario.router)
 app.include_router(auth.router)
-app.include_router(recuperar-password.router)
+
 
 
 
@@ -39,10 +39,11 @@ def get_db() -> Generator[Session, None, None]:
 # Crea tablas si no existen
 Base.metadata.create_all(bind=engine)
 
-
+"""
 @app.get("/")
 async def read_root():
     return {"message": "API Aula Segura funcionando"}
+"""
 
 
 if __name__ == "__main__":
