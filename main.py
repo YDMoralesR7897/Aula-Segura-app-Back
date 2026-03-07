@@ -14,6 +14,8 @@ app.include_router(perfil.router)
 app.include_router(persona.router)
 app.include_router(usuario.router)
 app.include_router(auth.router)
+app.include_router(recuperar-password.router)
+
 
 
 # Cadena de conexión (ajusta usuario/clave/host/DB si hace falta)
