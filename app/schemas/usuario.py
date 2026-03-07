@@ -8,6 +8,12 @@ class UsuarioBase(BaseModel):
 class UsuarioCreate(UsuarioBase):
     password: str
 
+
+class UsuarioUpdate(BaseModel):
+    username: str
+    password: str
+    id_perfil: int
+
 class UsuarioResponse(UsuarioBase):
     id_usuario: int
     estado: bool
