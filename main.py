@@ -5,17 +5,25 @@ from typing import Generator
 from app.routes import persona, usuario, perfil
 from fastapi import FastAPI
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from sqlalchemy.orm import sessionmaker, Session
 from app.routes import auth
 from app.database import Base, engine
+from app.routes import tipo_persona
+from app.routes import criterio_alerta
+from app.routes import orientacion
+from app.routes import hoja_vida
+from app.routes import detalle_hoja_vida
 
 app = FastAPI(title="Aula Segura API")
 app.include_router(perfil.router)
 app.include_router(persona.router)
 app.include_router(usuario.router)
 app.include_router(auth.router)
-
-
+app.include_router(tipo_persona.router)
+app.include_router(criterio_alerta.router)
+app.include_router(orientacion.router)
+app.include_router(hoja_vida.router)
+app.include_router(detalle_hoja_vida.router)
 
 
 # Cadena de conexión (ajusta usuario/clave/host/DB si hace falta)
