@@ -2,29 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.detalle_hoja_vida import DetalleHojaVida
+from app.schemas.detalle_hoja_vida import DetalleHojaVidaCreate, DetalleHojaVidaUpdate
 
 router = APIRouter(prefix="/detalle-hoja-vida", tags=["Detalle Hoja Vida"])
 
 
 # CREAR REGISTRO
 @router.post("/")
-def crear_detalle(
-    id_hoja: int,
-    id_criterio: int,
-    id_orientacion: int,
-    id_tipop: int,
-    observaciones: str,
-    persona_registra: int,
-    db: Session = Depends(get_db)
-):
+def crear_detalle(detalle_data: DetalleHojaVidaCreate, db: Session = Depends(get_db)):
 
     nuevo = DetalleHojaVida(
-        id_hoja=id_hoja,
-        id_criterio=id_criterio,
-        id_orientacion=id_orientacion,
-        id_tipop=id_tipop,
-        observaciones=observaciones,
-        persona_registra=persona_registra
+        id_hoja=detalle_data.id_hoja,
+        id_criterio=detalle_data.id_criterio,
+        id_orientacion=detalle_data.id_orientacion,
+        id_tipop=detalle_data.id_tipop,
+        observaciones=detalle_data.observaciones,
+        persona_registra=detalle_data.persona_registra
     )
 
     db.add(nuevo)
@@ -52,11 +45,7 @@ def detalles_por_hoja(id_hoja: int, db: Session = Depends(get_db)):
 
 # MODIFICAR
 @router.put("/{id_detalle}")
-def modificar_detalle(
-    id_detalle: int,
-    observaciones: str,
-    db: Session = Depends(get_db)
-):
+def modificar_detalle(id_detalle: int, detalle_data: DetalleHojaVidaUpdate, db: Session = Depends(get_db)):
 
     detalle = db.query(DetalleHojaVida).filter(
         DetalleHojaVida.id_detalle == id_detalle
@@ -65,7 +54,7 @@ def modificar_detalle(
     if not detalle:
         raise HTTPException(status_code=404, detail="Detalle no encontrado")
 
-    detalle.observaciones = observaciones
+    detalle.observaciones = detalle_data.observaciones
 
     db.commit()
 

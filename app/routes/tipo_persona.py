@@ -2,17 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.tipo_persona import TipoPersona
+from app.schemas.tipo_persona import TipoPersonaCreate, TipoPersonaUpdate
 
 router = APIRouter(prefix="/tipo-persona", tags=["Tipo Persona"])
 
 
 # CREAR
 @router.post("/")
-def crear_tipo_persona(nombretp: str, descripciontp: str, db: Session = Depends(get_db)):
+def crear_tipo_persona(tipo_persona_data: TipoPersonaCreate, db: Session = Depends(get_db)):
     
     nuevo = TipoPersona(
-        nombretp=nombretp,
-        descripciontp=descripciontp
+        nombretp=tipo_persona_data.nombretp,
+        descripciontp=tipo_persona_data.descripciontp
     )
 
     db.add(nuevo)
@@ -30,14 +31,14 @@ def listar_tipo_persona(db: Session = Depends(get_db)):
 
 # MODIFICAR
 @router.put("/{id_tipop}")
-def modificar_tipo_persona(id_tipop: int, nombretp: str, db: Session = Depends(get_db)):
+def modificar_tipo_persona(id_tipop: int, tipo_persona_data: TipoPersonaUpdate, db: Session = Depends(get_db)):
 
     tipo = db.query(TipoPersona).filter(TipoPersona.id_tipop == id_tipop).first()
 
     if not tipo:
         raise HTTPException(status_code=404, detail="Tipo persona no encontrado")
 
-    tipo.nombretp = nombretp
+    tipo.nombretp = tipo_persona_data.nombretp
 
     db.commit()
 

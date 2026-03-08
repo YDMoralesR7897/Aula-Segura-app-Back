@@ -2,15 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.criterio_alerta import CriterioAlerta
+from app.schemas.criterio_alerta import CriterioAlertaCreate, CriterioAlertaUpdate
 
 router = APIRouter(prefix="/criterio-alerta", tags=["Criterio Alerta"])
 
 
 # CREAR
 @router.post("/")
-def crear_criterio(nombre: str, db: Session = Depends(get_db)):
+def crear_criterio(criterio_data: CriterioAlertaCreate, db: Session = Depends(get_db)):
 
-    nuevo = CriterioAlerta(nombre=nombre)
+    nuevo = CriterioAlerta(nombre=criterio_data.nombre)
 
     db.add(nuevo)
     db.commit()
@@ -27,7 +28,7 @@ def listar_criterios(db: Session = Depends(get_db)):
 
 # MODIFICAR
 @router.put("/{id_criterio}")
-def modificar_criterio(id_criterio: int, nombre: str, db: Session = Depends(get_db)):
+def modificar_criterio(id_criterio: int, criterio_data: CriterioAlertaUpdate, db: Session = Depends(get_db)):
 
     criterio = db.query(CriterioAlerta).filter(
         CriterioAlerta.id_criterio == id_criterio
@@ -36,7 +37,7 @@ def modificar_criterio(id_criterio: int, nombre: str, db: Session = Depends(get_
     if not criterio:
         raise HTTPException(status_code=404, detail="Criterio no encontrado")
 
-    criterio.nombre = nombre
+    criterio.nombre = criterio_data.nombre
 
     db.commit()
 
