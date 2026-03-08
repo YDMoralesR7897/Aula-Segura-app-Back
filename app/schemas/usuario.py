@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class UsuarioBase(BaseModel):
     username: str
@@ -18,5 +18,6 @@ class UsuarioResponse(UsuarioBase):
     id_usuario: int
     estado: bool
 
-    class Config:
-        from_attributes = True
+    # Permite crear este esquema desde objetos (por ejemplo, instancias ORM),
+    # leyendo atributos como obj.id_usuario en lugar de requerir un dict.
+    model_config = ConfigDict(from_attributes=True)

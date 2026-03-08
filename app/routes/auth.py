@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.usuario import Usuario
-from app.schemas.auth import LoginRequest
+from app.schemas.auth import LoginRequest, RecuperarPasswordRequest
 from app.utils.security import verify_password
 import random
 import string
@@ -40,7 +40,8 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/recuperar-password")
-async def recuperar_password(correo: str, db: Session = Depends(get_db)):
+async def recuperar_password(data: RecuperarPasswordRequest, db: Session = Depends(get_db)):
+    correo = data.correo
 
     usuario = db.query(Usuario).join(Persona).filter(
         Persona.correo == correo

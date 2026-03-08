@@ -3,5 +3,6 @@ uvicorn[standard]
 sqlalchemy
 pymysql
 cryptography
+bcrypt
 passlib[bcrypt]
 fastapi-mail

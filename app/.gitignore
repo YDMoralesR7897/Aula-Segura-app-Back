@@ -7,3 +7,4 @@ instance/
 .idea/
 .vscode/
 .DS_Store
+mail.py

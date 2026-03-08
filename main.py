@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from app.routes import auth
-
+from app.database import Base, engine
 
 app = FastAPI(title="Aula Segura API")
 app.include_router(perfil.router)
@@ -24,7 +24,7 @@ DATABASE_URL = "mysql+pymysql://root:root123@localhost:3306/aula_segura"
 # Motor, sesión y base
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+
 
 
 # Dependencia de sesión
@@ -39,11 +39,11 @@ def get_db() -> Generator[Session, None, None]:
 # Crea tablas si no existen
 Base.metadata.create_all(bind=engine)
 
-"""
+
 @app.get("/")
 async def read_root():
     return {"message": "API Aula Segura funcionando"}
-"""
+
 
 
 if __name__ == "__main__":
