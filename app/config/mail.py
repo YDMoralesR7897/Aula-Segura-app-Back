@@ -2,7 +2,7 @@ from fastapi_mail import ConnectionConfig
 
 conf = ConnectionConfig(
     MAIL_USERNAME="yerson7897@gmail.com",
-    MAIL_PASSWORD="CREAR CONTRASEÑA DE APLICACIÓN EN GMAIL",
+    MAIL_PASSWORD="ankp fbud pnlg gyox",
     MAIL_FROM="yerson7897@gmail.com",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",

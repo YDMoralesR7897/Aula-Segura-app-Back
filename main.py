@@ -4,6 +4,7 @@ Permite usar `python main.py` en lugar de invocar uvicorn manualmente.
 from typing import Generator
 from app.routes import persona, usuario, perfil
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.routes import auth
@@ -15,6 +16,17 @@ from app.routes import hoja_vida
 from app.routes import detalle_hoja_vida
 
 app = FastAPI(title="Aula Segura API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(perfil.router)
 app.include_router(persona.router)
 app.include_router(usuario.router)
