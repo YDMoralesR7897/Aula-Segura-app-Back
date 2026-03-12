@@ -1,46 +1,60 @@
-# AulaSeguraAppBack — Instrucciones de ejecución
+# AulaSeguraAppBack
 
-Pasos rápidos para ejecutar la API en desarrollo (Windows):
+Backend API de Aula Segura construido con FastAPI + SQLAlchemy.
 
-1. Abrir terminal y situarse en la carpeta del proyecto:
+## Requisitos
 
-```powershell
-cd C:\Users\yerso\OneDrive\Desktop\programmingProjects\AulaSeguraAppBack
-```
+- Python 3.10+
+- Base de datos (MySQL recomendada para desarrollo real)
 
-2. Crear y activar el entorno virtual (si no existe):
+## Configuracion
+
+1. Crear entorno virtual:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1    # PowerShell
-# o .\.venv\Scripts\activate    # cmd
+.\.venv\Scripts\Activate.ps1
 ```
 
-3. Instalar dependencias:
+2. Instalar dependencias:
 
 ```powershell
-pip install -r app\requirements.txt
+pip install -r requirements.txt
 ```
 
-4. Configurar la base de datos (opcional):
-
-- Edita la variable `DATABASE_URL` en `main.py` si necesitas cambiar usuario, contraseña, host, puerto o nombre de la BD.
-
-5. Ejecutar la aplicación:
+3. Crear archivo de entorno:
 
 ```powershell
-# Ejecutar con el launcher (archivo raíz)
-python main.py
+Copy-Item .env.example .env
+```
 
-# O ejecutar con uvicorn (recomendado para desarrollo)
+4. Ajustar `DATABASE_URL`, `JWT_SECRET_KEY` y datos de correo en `.env`.
+
+## Migraciones
+
+Aplicar migracion inicial:
+
+```powershell
+alembic upgrade head
+```
+
+Crear nuevas migraciones:
+
+```powershell
+alembic revision -m "descripcion_cambio"
+```
+
+## Ejecucion
+
+```powershell
 uvicorn main:app --reload
 ```
 
-6. Acceder al servicio:
-
 - API: http://127.0.0.1:8000/
-- Docs interactivos: http://127.0.0.1:8000/docs
+- Docs: http://127.0.0.1:8000/docs
 
-Notas:
-- El archivo `app\requirements.txt` contiene las dependencias usadas (FastAPI, Uvicorn, SQLAlchemy, PyMySQL).
-- Si aparece `ModuleNotFoundError` instala el paquete faltante con `pip install <paquete>`.
+## Pruebas
+
+```powershell
+pytest
+```

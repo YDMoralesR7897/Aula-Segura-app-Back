@@ -1,16 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
+from app.config import get_settings
 from app.database import get_db
+from app.dependencies import PaginationParams, pagination_params, require_profiles
 from app.models.orientacion_no_clinica import OrientacionNoClinica
-from app.schemas.orientacion import OrientacionCreate, OrientacionUpdate
+from app.models.usuario import Usuario
+from app.schemas.common import MessageResponse
+from app.schemas.orientacion import OrientacionCreate, OrientacionResponse, OrientacionUpdate
 
-router = APIRouter(prefix="/orientacion", tags=["Orientaciones No Clínicas"])
+router = APIRouter(prefix="/orientacion", tags=["Orientaciones No Clinicas"])
+settings = get_settings()
+admin_required = require_profiles(*settings.admin_profile_ids)
 
 
-# CREAR
-@router.post("/")
-def crear_orientacion(orientacion_data: OrientacionCreate, db: Session = Depends(get_db)):
-
+@router.post("/", response_model=OrientacionResponse, status_code=status.HTTP_201_CREATED)
+def crear_orientacion(
+    orientacion_data: OrientacionCreate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
     nueva = OrientacionNoClinica(nombre=orientacion_data.nombre)
 
     db.add(nueva)
@@ -20,45 +29,54 @@ def crear_orientacion(orientacion_data: OrientacionCreate, db: Session = Depends
     return nueva
 
 
-# CONSULTAR
-@router.get("/")
-def listar_orientaciones(db: Session = Depends(get_db)):
-    return db.query(OrientacionNoClinica).filter(
-        OrientacionNoClinica.estado == True
-    ).all()
+@router.get("/", response_model=list[OrientacionResponse])
+def listar_orientaciones(
+    db: Session = Depends(get_db),
+    pagination: PaginationParams = Depends(pagination_params),
+    _: Usuario = Depends(admin_required),
+):
+    return (
+        db.query(OrientacionNoClinica)
+        .filter(OrientacionNoClinica.estado.is_(True))
+        .offset(pagination.offset)
+        .limit(pagination.limit)
+        .all()
+    )
 
 
-# MODIFICAR
-@router.put("/{id_orientacion}")
-def modificar_orientacion(id_orientacion: int, orientacion_data: OrientacionUpdate, db: Session = Depends(get_db)):
-
-    orientacion = db.query(OrientacionNoClinica).filter(
-        OrientacionNoClinica.id_orientacion == id_orientacion
-    ).first()
+@router.put("/{id_orientacion}", response_model=OrientacionResponse)
+def modificar_orientacion(
+    id_orientacion: int,
+    orientacion_data: OrientacionUpdate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
+    orientacion = db.query(OrientacionNoClinica).filter(OrientacionNoClinica.id_orientacion == id_orientacion).first()
 
     if not orientacion:
-        raise HTTPException(status_code=404, detail="Orientación no encontrada")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Orientacion no encontrada")
 
     orientacion.nombre = orientacion_data.nombre
 
     db.commit()
+    db.refresh(orientacion)
 
-    return {"mensaje": "Orientación actualizada"}
+    return orientacion
 
 
-# INHABILITAR
-@router.delete("/{id_orientacion}")
-def inhabilitar_orientacion(id_orientacion: int, db: Session = Depends(get_db)):
-
-    orientacion = db.query(OrientacionNoClinica).filter(
-        OrientacionNoClinica.id_orientacion == id_orientacion
-    ).first()
+@router.delete("/{id_orientacion}", response_model=MessageResponse)
+def inhabilitar_orientacion(
+    id_orientacion: int,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
+    orientacion = db.query(OrientacionNoClinica).filter(OrientacionNoClinica.id_orientacion == id_orientacion).first()
 
     if not orientacion:
-        raise HTTPException(status_code=404, detail="Orientación no encontrada")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Orientacion no encontrada")
 
     orientacion.estado = False
 
     db.commit()
 
-    return {"mensaje": "Orientación inhabilitada"}
+    return MessageResponse(mensaje="Orientacion inhabilitada")

@@ -1,23 +1,24 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field
+
+from app.schemas.common import ORMModel
+
 
 class UsuarioBase(BaseModel):
-    username: str
-    id_persona: int
-    id_perfil: int
+    username: str = Field(min_length=4, max_length=50)
+    id_persona: int = Field(gt=0)
+    id_perfil: int = Field(gt=0)
+
 
 class UsuarioCreate(UsuarioBase):
-    password: str
+    password: str = Field(min_length=8, max_length=128)
 
 
 class UsuarioUpdate(BaseModel):
-    username: str
-    password: str
-    id_perfil: int
+    username: str = Field(min_length=4, max_length=50)
+    password: str = Field(min_length=8, max_length=128)
+    id_perfil: int = Field(gt=0)
 
-class UsuarioResponse(UsuarioBase):
+
+class UsuarioResponse(UsuarioBase, ORMModel):
     id_usuario: int
     estado: bool
-
-    # Permite crear este esquema desde objetos (por ejemplo, instancias ORM),
-    # leyendo atributos como obj.id_usuario en lugar de requerir un dict.
-    model_config = ConfigDict(from_attributes=True)

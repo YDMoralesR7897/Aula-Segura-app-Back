@@ -1,9 +1,20 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.schemas.common import ORMModel
 
 
-class CriterioAlertaCreate(BaseModel):
-    nombre: str
+class CriterioAlertaBase(BaseModel):
+    nombre: str = Field(min_length=2, max_length=100)
 
 
-class CriterioAlertaUpdate(BaseModel):
-    nombre: str
+class CriterioAlertaCreate(CriterioAlertaBase):
+    pass
+
+
+class CriterioAlertaUpdate(CriterioAlertaBase):
+    pass
+
+
+class CriterioAlertaResponse(CriterioAlertaBase, ORMModel):
+    id_criterio: int
+    estado: bool

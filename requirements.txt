@@ -6,3 +6,9 @@ cryptography
 bcrypt
 passlib[bcrypt]
 fastapi-mail
+pydantic-settings
+python-jose[cryptography]
+email-validator
+alembic
+pytest
+httpx

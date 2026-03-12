@@ -1,16 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
+from app.config import get_settings
 from app.database import get_db
+from app.dependencies import PaginationParams, pagination_params, require_profiles
 from app.models.criterio_alerta import CriterioAlerta
-from app.schemas.criterio_alerta import CriterioAlertaCreate, CriterioAlertaUpdate
+from app.models.usuario import Usuario
+from app.schemas.common import MessageResponse
+from app.schemas.criterio_alerta import CriterioAlertaCreate, CriterioAlertaResponse, CriterioAlertaUpdate
 
 router = APIRouter(prefix="/criterio-alerta", tags=["Criterio Alerta"])
+settings = get_settings()
+admin_required = require_profiles(*settings.admin_profile_ids)
 
 
-# CREAR
-@router.post("/")
-def crear_criterio(criterio_data: CriterioAlertaCreate, db: Session = Depends(get_db)):
-
+@router.post("/", response_model=CriterioAlertaResponse, status_code=status.HTTP_201_CREATED)
+def crear_criterio(
+    criterio_data: CriterioAlertaCreate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
     nuevo = CriterioAlerta(nombre=criterio_data.nombre)
 
     db.add(nuevo)
@@ -20,43 +29,54 @@ def crear_criterio(criterio_data: CriterioAlertaCreate, db: Session = Depends(ge
     return nuevo
 
 
-# CONSULTAR
-@router.get("/")
-def listar_criterios(db: Session = Depends(get_db)):
-    return db.query(CriterioAlerta).filter(CriterioAlerta.estado == True).all()
+@router.get("/", response_model=list[CriterioAlertaResponse])
+def listar_criterios(
+    db: Session = Depends(get_db),
+    pagination: PaginationParams = Depends(pagination_params),
+    _: Usuario = Depends(admin_required),
+):
+    return (
+        db.query(CriterioAlerta)
+        .filter(CriterioAlerta.estado.is_(True))
+        .offset(pagination.offset)
+        .limit(pagination.limit)
+        .all()
+    )
 
 
-# MODIFICAR
-@router.put("/{id_criterio}")
-def modificar_criterio(id_criterio: int, criterio_data: CriterioAlertaUpdate, db: Session = Depends(get_db)):
-
-    criterio = db.query(CriterioAlerta).filter(
-        CriterioAlerta.id_criterio == id_criterio
-    ).first()
+@router.put("/{id_criterio}", response_model=CriterioAlertaResponse)
+def modificar_criterio(
+    id_criterio: int,
+    criterio_data: CriterioAlertaUpdate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
+    criterio = db.query(CriterioAlerta).filter(CriterioAlerta.id_criterio == id_criterio).first()
 
     if not criterio:
-        raise HTTPException(status_code=404, detail="Criterio no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Criterio no encontrado")
 
     criterio.nombre = criterio_data.nombre
 
     db.commit()
+    db.refresh(criterio)
 
-    return {"mensaje": "Criterio actualizado"}
+    return criterio
 
 
-# INHABILITAR
-@router.delete("/{id_criterio}")
-def inhabilitar_criterio(id_criterio: int, db: Session = Depends(get_db)):
-
-    criterio = db.query(CriterioAlerta).filter(
-        CriterioAlerta.id_criterio == id_criterio
-    ).first()
+@router.delete("/{id_criterio}", response_model=MessageResponse)
+def inhabilitar_criterio(
+    id_criterio: int,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(admin_required),
+):
+    criterio = db.query(CriterioAlerta).filter(CriterioAlerta.id_criterio == id_criterio).first()
 
     if not criterio:
-        raise HTTPException(status_code=404, detail="Criterio no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Criterio no encontrado")
 
     criterio.estado = False
 
     db.commit()
 
-    return {"mensaje": "Criterio inhabilitado"}
+    return MessageResponse(mensaje="Criterio inhabilitado")

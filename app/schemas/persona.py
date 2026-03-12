@@ -1,13 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
+
+from app.schemas.common import ORMModel
 
 
-class PersonaCreate(BaseModel):
-    nombre: str
-    apellido: str
-    correo: str
+class PersonaBase(BaseModel):
+    nombre: str = Field(min_length=2, max_length=50)
+    apellido: str = Field(min_length=2, max_length=50)
+    correo: EmailStr
 
 
-class PersonaUpdate(BaseModel):
-    nombre: str
-    apellido: str
-    correo: str
+class PersonaCreate(PersonaBase):
+    pass
+
+
+class PersonaUpdate(PersonaBase):
+    pass
+
+
+class PersonaResponse(PersonaBase, ORMModel):
+    id_persona: int
+    estado: bool
